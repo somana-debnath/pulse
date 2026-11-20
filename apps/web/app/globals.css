@@ -1,0 +1,136 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Design tokens. Status colours (up/warn/down) are used only to carry meaning.
+ * Fills use the brand values; text that sits on a soft tint uses the *-ink variants
+ * so every pairing meets WCAG AA (4.5:1). Coral #E4572E is used for large/decorative
+ * elements; small text and button fills use coral-ink, a deeper shade that passes AA.
+ */
+:root {
+  --bg: 251 250 248;        /* #FBFAF8 */
+  --card: 255 255 255;
+  --line: 236 233 228;      /* #ECE9E4 */
+  --ink: 23 22 28;          /* #17161C */
+  --muted: 107 104 117;     /* #6B6875 */
+  --coral: 228 87 46;       /* #E4572E */
+  --coral-ink: 189 63 26;   /* AA on white & bg */
+  --btn-bg: 197 66 28;
+  --btn-fg: 255 255 255;
+  --dark: 23 22 28;
+  --on-dark: 251 250 248;
+  --up: 29 158 117;         /* #1D9E75 */
+  --warn: 239 159 39;       /* #EF9F27 */
+  --down: 226 75 74;        /* #E24B4A */
+  --up-ink: 14 107 76;
+  --warn-ink: 138 83 0;
+  --down-ink: 176 38 37;
+  --up-soft: 230 244 238;
+  --warn-soft: 253 241 222;
+  --down-soft: 252 234 234;
+  --none: 226 223 217;
+  color-scheme: light;
+}
+
+.dark {
+  --bg: 19 18 23;
+  --card: 28 27 33;
+  --line: 46 44 52;
+  --ink: 244 242 238;
+  --muted: 168 164 176;
+  --coral: 240 112 79;
+  --coral-ink: 245 135 104;
+  --btn-bg: 240 112 79;
+  --btn-fg: 23 22 28;
+  --dark: 244 242 238;
+  --on-dark: 23 22 28;
+  --up: 38 181 135;
+  --warn: 242 172 64;
+  --down: 236 99 98;
+  --up-ink: 110 219 178;
+  --warn-ink: 246 192 110;
+  --down-ink: 248 148 147;
+  --up-soft: 19 46 37;
+  --warn-soft: 52 38 16;
+  --down-soft: 56 25 26;
+  --none: 52 50 58;
+  color-scheme: dark;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  @apply bg-bg font-sans text-ink antialiased;
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+:focus-visible {
+  outline: 2px solid rgb(var(--coral-ink));
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+@layer components {
+  .card {
+    @apply rounded-card border border-line bg-card shadow-soft;
+  }
+  .pill {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-[15px] font-medium transition-all duration-200 ease-out;
+  }
+  .pill-primary {
+    @apply pill bg-btn-bg text-btn-fg hover:-translate-y-px hover:shadow-[0_6px_20px_-6px_rgb(var(--coral)/0.55)] active:translate-y-0;
+  }
+  .pill-dark {
+    @apply pill bg-dark text-on-dark hover:-translate-y-px hover:opacity-90 active:translate-y-0;
+  }
+  .pill-outline {
+    @apply pill border border-line bg-card text-ink hover:-translate-y-px hover:border-muted/40 active:translate-y-0;
+  }
+  .field {
+    @apply w-full rounded-[10px] border border-line bg-card px-3 py-2 text-[15px] text-ink placeholder:text-muted/70 transition-colors focus:border-coral-ink focus:outline-none focus:ring-2 focus:ring-coral/20;
+  }
+  .label {
+    @apply mb-1.5 block text-[13px] font-medium text-muted;
+  }
+  .serif {
+    @apply font-serif font-normal tracking-[-0.01em];
+  }
+}
+
+/* Heartbeat line that draws itself on a loop */
+.heartbeat-path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: heartbeat-draw 3.2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+@keyframes heartbeat-draw {
+  0% { stroke-dashoffset: 1; opacity: 1; }
+  55% { stroke-dashoffset: 0; opacity: 1; }
+  85% { stroke-dashoffset: 0; opacity: 0; }
+  100% { stroke-dashoffset: 1; opacity: 0; }
+}
+
+.ping-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: rgb(var(--up));
+  animation: ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+@keyframes ping {
+  75%, 100% { transform: scale(2.4); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .heartbeat-path { animation: none; stroke-dashoffset: 0; opacity: 1; }
+  .ping-dot::after { animation: none; opacity: 0; }
+}

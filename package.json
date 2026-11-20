@@ -1,0 +1,40 @@
+{
+  "name": "pulse",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Open-source synthetic monitoring. Acts like a real user on your site every few minutes.",
+  "license": "MIT",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "npm run dev -w @pulse/web",
+    "build": "npm run build -w @pulse/web",
+    "worker": "npm run start -w @pulse/worker",
+    "worker:once": "npm run once -w @pulse/worker",
+    "test-site": "npm run start -w @pulse/test-site",
+    "test": "vitest run",
+    "test:unit": "vitest run --project unit",
+    "test:integration": "vitest run --project integration",
+    "test:sql": "vitest run --project sql",
+    "typecheck": "tsc -p packages/core && tsc -p apps/test-site && tsc -p apps/worker && tsc -p apps/web --noEmit",
+    "gif": "tsx scripts/make-hero-gif.ts",
+    "db:migrate": "tsx scripts/migrate.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/pg": "^8.11.10",
+    "@types/pngjs": "^6.0.5",
+    "gifenc": "^1.0.3",
+    "pg": "^8.13.1",
+    "pngjs": "^7.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "~5.9.3",
+    "vitest": "^4.0.0"
+  }
+}

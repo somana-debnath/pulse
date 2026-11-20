@@ -1,0 +1,60 @@
+name: Monitor
+
+# Free scheduling: GitHub Actions runs one worker tick every 5 minutes (the
+# shortest interval GitHub allows; runs can start a few minutes late under load).
+# Checks are keyed to time slots, so a late or re-run job never double-counts.
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Run every enabled check now, even if it already ran this slot
+        type: boolean
+        default: false
+
+concurrency:
+  group: pulse-monitor
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund --workspace @pulse/worker --include-workspace-root
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-1.65.1
+      - run: npx playwright install --with-deps chromium
+      - name: Run due checks
+        run: npx tsx apps/worker/src/cli.ts --once ${{ inputs.force && '--force' || '' }}
+        env:
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          SMTP_URL: ${{ secrets.SMTP_URL }}
+          ALERT_EMAIL_FROM: ${{ vars.ALERT_EMAIL_FROM }}
+          ALERT_EMAIL_TO: ${{ vars.ALERT_EMAIL_TO }}
+          PUBLIC_APP_URL: ${{ vars.PUBLIC_APP_URL }}
+          # Journey secrets referenced as {{env.NAME}} in steps:
+          JARS_TEST_EMAIL: ${{ secrets.JARS_TEST_EMAIL }}
+          JARS_TEST_PASSWORD: ${{ secrets.JARS_TEST_PASSWORD }}
+      - name: Upload failure screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failure-screenshots-${{ github.run_id }}
+          path: artifacts/
+          if-no-files-found: ignore
+          retention-days: 7

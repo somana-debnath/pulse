@@ -1,0 +1,31 @@
+# Run everything locally:   docker compose up --build
+#   web        http://localhost:3011   landing, dashboard, status pages
+#   test-site  http://localhost:3012   "Acme Shop" — break it at /__pulse to watch an incident open
+#   worker     ticks every minute; uses Supabase if SUPABASE_SECRET_KEY is set, else an in-memory demo store
+services:
+  web:
+    build:
+      context: .
+      target: web
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:-}
+        NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:-}
+    env_file: [{ path: .env.local, required: false }]
+    ports: ["3011:3011"]
+    restart: unless-stopped
+
+  worker:
+    build: { context: ., target: worker }
+    env_file: [{ path: .env.local, required: false }]
+    environment:
+      TEST_SITE_URL: http://test-site:3012
+      PUBLIC_APP_URL: http://localhost:3011
+      PULSE_REGION: docker
+    depends_on: [test-site]
+    restart: unless-stopped
+
+  test-site:
+    build: { context: ., target: test-site }
+    environment: { PORT: "3012", HOST: 0.0.0.0 }
+    ports: ["3012:3012"]
+    restart: unless-stopped
