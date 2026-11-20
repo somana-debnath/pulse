@@ -9,13 +9,13 @@
     "dry-run": "tsx src/cli.ts --once --dry-run"
   },
   "dependencies": {
-    "@pulse/core": "*",
+    "@pulse/core": "file:../../packages/core",
     "@supabase/supabase-js": "^2.119.0",
     "nodemailer": "^7.0.10",
     "playwright": "1.65.1"
   },
   "devDependencies": {
-    "@pulse/test-site": "*",
+    "@pulse/test-site": "file:../test-site",
     "@types/nodemailer": "^7.0.4"
   }
 }
