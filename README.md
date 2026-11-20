@@ -14,8 +14,6 @@
 
 ## The story
 
-During my co-op at **Public Services and Procurement Canada**, I built an RPA monitoring bot that walked through critical services the way a real person would and raised the alarm when a step failed. It **cut outage detection time by 40%**, because we stopped finding out about breakages from the people who were trying to use them.
-
 Pulse is the open-source version of that idea, rebuilt so that anyone can run it for **free**:
 
 - a simple URL check or a full **Playwright user journey** (open the site → log in → search → add to cart),
